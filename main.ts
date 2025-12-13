@@ -1,3 +1,4 @@
+import { lastNDaysISO, getNDaysStatistics, normalizeEntries, Habit } from "core";
 import { App, Modal, MarkdownPostProcessorContext, Notice, Plugin, PluginSettingTab, Setting, TFile, normalizePath } from "obsidian";
 
 interface AnotherHabitTrackerSettings {
@@ -93,7 +94,7 @@ export default class AnotherHabitTrackerPlugin extends Plugin {
   async onload() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     this.addSettingTab(new AnotherHabitTrackerSettingTab(this.app, this));
-
+    console.log(lastNDaysISO(10));
     this.addCommand({
       id: "open-habit-modal",
       name: "Open habit modal",
@@ -109,7 +110,8 @@ export default class AnotherHabitTrackerPlugin extends Plugin {
 
       const files = await listHabitFiles(this.app, this.settings.habitsPath);
       const total = files.length;
-
+      console.log("statistics:")
+      console.log(await getNDaysStatistics(await getHabits(this.app,files),this.app,10))
       if (total === 0) {
         el.createEl("p", { text: "No habits found in the specified folder." });
         return;
@@ -131,9 +133,11 @@ export default class AnotherHabitTrackerPlugin extends Plugin {
       header.createEl("p", { text: `Today: ${doneToday}/${total}` });
 
       // TODO depois: last 7 days rate, streak, etc
-      
+
     }
   );
+
+ 
 
 
 
@@ -184,6 +188,17 @@ async function getEntries(app: App, file: TFile): Promise<string[]> {
   return normalizeEntries(allEntries);
 }
 
+async function getHabits(app: App, files: TFile[]): Promise<Habit[]> {
+  return Promise.all(
+    files.map(async (file) => ({
+      file: file.path,
+      habitName: file.basename,
+      entries: await getEntries(app, file),
+    }))
+  );
+}
+
+
 
 function getLocalDateISO(): string {
   const now = new Date();
@@ -193,8 +208,5 @@ function getLocalDateISO(): string {
   return `${year}-${month}-${day}`;
 }
 
-function normalizeEntries(entries: unknown): string[] {
-  if (!Array.isArray(entries)) return [];
-  const onlyStrings = entries.filter((x): x is string => typeof x === "string");
-  return Array.from(new Set(onlyStrings)).sort();
-}
+
+
