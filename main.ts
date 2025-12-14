@@ -21,39 +21,98 @@ class HabitsListModal extends Modal {
   async onOpen() {
     const { contentEl } = this;
     contentEl.empty();
+    contentEl.addClass("aht-modal");
 
     const today = this.todayISO();
 
-    contentEl.createEl("h2", { text: "Another Habit Tracker" });
-    contentEl.createEl("p", { text: `Pasta: ${this.habitsPath}` });
-    contentEl.createEl("p", { text: `Hoje: ${today}` });
+    const header = contentEl.createDiv({ cls: "aht-modal__header" });
+
+    const titleRow = header.createDiv({ cls: "aht-modal__titleRow" });
+    titleRow.createEl("h2", { text: "Another Habit Tracker" });
+    titleRow.createDiv({ cls: "aht-pill", text: today });
+
+    header.createDiv({
+      cls: "aht-modal__subtitle",
+      text: `Pasta: ${this.habitsPath}`,
+    });
 
     const files = await listHabitFiles(this.app, this.habitsPath);
 
     if (files.length === 0) {
-      contentEl.createEl("p", { text: "Nenhum hábito encontrado nessa pasta." });
+      const empty = contentEl.createDiv({ cls: "aht-empty" });
+      empty.createEl("p", { text: "Nenhum hábito encontrado nessa pasta." });
       return;
     }
 
+    const stats = contentEl.createDiv({ cls: "aht-stats" });
+    const statsText = stats.createDiv({ cls: "aht-stats__text" });
+
+    const progressOuter = stats.createDiv({ cls: "aht-progress" });
+    const progressInner = progressOuter.createDiv({ cls: "aht-progress__bar" });
+
     const list = contentEl.createDiv({ cls: "aht-list" });
 
+    let doneCount = 0;
+
+    const items: Array<{
+      file: TFile;
+      rowEl: HTMLDivElement;
+      cb: HTMLInputElement;
+    }> = [];
 
     for (const file of files) {
-      const row = list.createDiv({ cls: "aht-row" });
-      const label = row.createEl("label");
-      const cb = label.createEl("input", { type: "checkbox" });
-
       const entries = await getEntries(this.app, file);
-      cb.checked = entries.includes(today);
+      const doneToday = entries.includes(today);
+      if (doneToday) doneCount++;
+
+      const rowEl = list.createDiv({ cls: "aht-item" });
+      if (doneToday) rowEl.addClass("is-done");
+
+      const btn = rowEl.createEl("button", { cls: "aht-item__btn" });
+
+      const cb = btn.createEl("input", {
+        type: "checkbox",
+        cls: "aht-item__cb",
+      });
+      cb.checked = doneToday;
+
+      const texts = btn.createDiv({ cls: "aht-item__texts" });
+      texts.createDiv({ cls: "aht-item__name", text: file.basename });
+      texts.createDiv({
+        cls: "aht-item__meta",
+        text: doneToday ? "Feito hoje" : "Pendente",
+      });
+
+      btn.addEventListener("click", (ev) => {
+        if (ev.target === cb) return;
+        cb.click();
+      });
 
       cb.onchange = async () => {
-        await toggleEntry(this.app, file, today, cb.checked);
+        cb.disabled = true;
+        try {
+          await toggleEntry(this.app, file, today, cb.checked);
+          rowEl.toggleClass("is-done", cb.checked);
+          texts.querySelector(".aht-item__meta")!.textContent = cb.checked ? "Feito hoje" : "Pendente";
+
+          doneCount += cb.checked ? 1 : -1;
+          updateStats();
+        } finally {
+          cb.disabled = false;
+        }
       };
 
-      label.appendText(" " + file.basename);
+      items.push({ file, rowEl, cb });
     }
 
+    const updateStats = () => {
+      statsText.textContent = `Hoje: ${doneCount}/${files.length}`;
+      const pct = Math.round((doneCount / files.length) * 100);
+      progressInner.style.width = `${pct}%`;
+      progressInner.setAttr("aria-valuenow", String(pct));
+    };
 
+    updateStats();
   }
 
   onClose() {
@@ -132,7 +191,6 @@ export default class AnotherHabitTrackerPlugin extends Plugin {
       header.createEl("h3", { text: "Habit Tracker" });
       header.createEl("p", { text: `Today: ${doneToday}/${total}` });
 
-      // TODO depois: last 7 days rate, streak, etc
 
     }
   );

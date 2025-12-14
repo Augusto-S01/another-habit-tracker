@@ -1,8 +1,131 @@
-/*
+.aht-modal .modal-content {
+  padding: 0;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.aht-modal__header {
+  padding: 16px 16px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  position: sticky;
+  top: 0;
+  background: var(--background-primary);
+  z-index: 1;
+}
 
-If your plugin does not need CSS, delete this file.
+.aht-modal__titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 
-*/
+.aht-modal__titleRow h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.aht-modal__subtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.aht-pill {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.aht-stats {
+  padding: 12px 16px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: grid;
+  gap: 8px;
+}
+
+.aht-stats__text {
+  font-size: 13px;
+  color: var(--text-normal);
+}
+
+.aht-progress {
+  height: 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.aht-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: var(--interactive-accent);
+}
+
+.aht-list {
+  padding: 8px 10px 12px;
+  display: grid;
+  gap: 8px;
+  max-height: 70vh; /* bom pro mobile */
+  overflow: auto;
+}
+
+.aht-item {
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.aht-item.is-done {
+  opacity: 0.95;
+}
+
+.aht-item__btn {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  align-items: center;
+
+  padding: 14px 12px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+
+  /* touch target */
+  min-height: 80px;
+}
+
+.aht-item__btn:active {
+  background: var(--background-modifier-hover);
+}
+
+.aht-item__cb {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--interactive-accent);
+}
+
+.aht-item__texts {
+  display: grid;
+  gap: 2px;
+}
+
+.aht-item__name {
+  font-size: 14px;
+  color: var(--text-normal);
+}
+
+.aht-item__meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.aht-empty {
+  padding: 16px;
+}
