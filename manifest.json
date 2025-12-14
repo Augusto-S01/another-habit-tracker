@@ -3,7 +3,7 @@
   "name": "Another Habit Tracker",
   "version": "0.1.0",
   "minAppVersion": "0.15.0",
-  "description": "Habit tracker for Obsidian using frontmatter entries and interactive codeblocks + modal.",
+  "description": "Habit tracker using frontmatter entries and interactive codeblocks + modal.",
   "author": "Augusto Souza",
   "authorUrl": "https://augustosouza.dev",
   "isDesktopOnly": false
